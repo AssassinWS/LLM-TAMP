@@ -35,7 +35,7 @@ First, create a folder `openai_keys` under the project directory; Second, create
 ```
 
 ### Run TAMP planning
-(The ablation study in the LLM^3 paper)
+(The ablation study in the LLM^3 paper.)
 
 Full example with various options:
 
@@ -51,7 +51,7 @@ python main.py --config-name=llm_tamp env=easy_box_small_basket planner=llm_back
 - `use_gui`: whether enable gui in pybullet
 
 ### Run parameter sampling
-(The action parameter selection experiment in the LLM^3 paper)
+(The action parameter selection experiment in the LLM^3 paper.)
 
 Run with the LLM sampler:
 
