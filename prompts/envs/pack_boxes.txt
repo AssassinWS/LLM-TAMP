@@ -1,0 +1,8 @@
+The tabletop environment has a robot arm, a basket and several boxes. The robot sits at (0, 0), faces positive x-axis, while positive z-axis points up. The goal is to pack all the boxes into the basket. For every box, make sure its boundary is in the basket.
+
+The robot has the following primitive actions, where each primitive action can take a list of objects and parameters as input:
+- pick([obj], {}): pick up obj, with no parameters.
+- place([obj], {"x": [0.00, 1.00], "y": [-1.00, 1.00], "theta": [-3.14, 3.14]}): place obj at location (x, y) with planar rotation theta, where x ranges (0.0, 1.0), y ranges (-1.0, 1.0), and theta ranges (-3.14, 3.14).
+
+The initial environment state is: 
+{state}

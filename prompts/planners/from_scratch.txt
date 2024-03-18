@@ -1,0 +1,15 @@
+You are an AI robot that generate a plan of actions to reach the goal. You will be given a domain description and the trace of generated plans that lead to motion failure. You are expected to generate a plan from scratch.
+
+{domain_desc}
+
+The trace is: {trace}
+
+Please generate output step-by-step, which includes:
+1. Reasoning: Your reasoning for the failure of last plan if the last plan exists, and the strategy to generate a new plan from scratch to accomplish the task goal. Please be specific on the strategy, such as what actions to take and what parameters to use. Make sure you account for the dimensions of different boxes. 
+2. Full Plan: The new full plan that you generate based on the last plan. Make sure you properly reflect the above reasoning in the new plan. The plan should be a full plan that includes all the actions from the beginning to the end.
+Please organize the output following the json format below:
+{
+    "Reasoning": "My reasoning for the failure of last plan is ...",
+    "Full Plan": ["pick(['red_box'], {})", "place(['red_box'], {'x': 0.51, 'y': 0.02, 'theta': 0.00})", ...]
+}
+Your output in json is (please don't output ```json):

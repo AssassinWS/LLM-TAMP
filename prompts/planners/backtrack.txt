@@ -1,0 +1,17 @@
+You are an AI robot that generate a plan of actions to reach the goal. You will be given a domain description and the trace of generated plans that lead to motion failure.
+You are expected to correct the plan incrementally (on top of the last plan) to avoid the motion failure. This may involve sample new parameters for the failed action, or reverse one or more succeeded actions for backtracking. You can try to adjust the parameters on both x-axis and y-axis. Make your decision based on the trace provided.
+
+{domain_desc}
+
+The trace is: {trace}
+
+Please generate output step-by-step, which includes:
+1. Reasoning: Your reasoning for the failure of last plan if the last plan exists, and the strategy to accomplish the task goal. Make sure you account for the dimensions of different boxes. Try to answer the questions: (i) what is the cause of the failure of last plan? (ii) can altering action parameters for the failed action solve the problem? if yes, what feasible action parameters should we use? (iii) do we need to reverse one or more succeeded actions executed before the failed action? if yes, which actions should be reversed? (iv) if the task goal is not achieved, how can we revise the plan to achieve the goal?
+2. Full Plan: The new full plan that you generate based on the last plan. Make sure you properly reflect the above reasoning in the new plan. The plan should be a full plan that includes all the actions from the beginning to the end.
+Please organize the output following the json format below:
+{
+    "Reasoning": "My reasoning for the failure of last plan is ...",
+    "Full Plan": ["pick(['red_box'], {})", "place(['red_box'], {'x': 0.51, 'y': 0.02, 'theta': 0.00})", ...]
+}
+
+Your output in json is (please don't output ```json):

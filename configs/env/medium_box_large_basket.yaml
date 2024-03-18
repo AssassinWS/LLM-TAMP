@@ -1,0 +1,6 @@
+defaults:
+  - boxes: medium
+  - basket: large
+
+env_name: medium_box_large_basket
+task_instances: 10

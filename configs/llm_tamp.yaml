@@ -1,0 +1,28 @@
+defaults:
+  - env: easy_box_small_basket
+  - planner: llm_backtrack
+
+# runner
+runner: tamp
+
+# trace size
+planner:
+  trace_size: 5
+
+# max llm callls
+max_llm_calls: 10
+
+# saved dir
+save_dir: saved_runs/run_tamp/${now:%Y-%m-%d-%H-%M-%S}/${env.env_name}_${planner.planner_prompt_file}_${planner.with_mp_feedback}
+
+save_to_file: True
+overwrite_instances: False
+
+play_traj: True
+use_gui: True
+
+# disable hydra saving
+hydra:  
+  output_subdir: null  
+  run:  
+    dir: ${save_dir}

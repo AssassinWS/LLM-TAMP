@@ -1,0 +1,217 @@
+##################################################
+Prompt:
+You are an AI robot that generate a sequence of actions to reach the goal.
+
+The tabletop environment has a robot arm, a backet and several boxes. The robot sits at (0, 0), faces positive x axis, while positive z axis points up. The basket has a square shape, ranges (0.55, 0.65) along the axis, and ranges (-0.25, 0.25) along the y axis.
+The goal is to pack all the boxes into a compact basket on the tabletop.
+
+The robot has the following skills, where each skill can take a list of objects and parameters as input:
+- pick([obj], {}): pick up obj, with no parameters.
+- place([obj], {"x": [0.0, 1.0], "y": [-1.0, 1.0], "theta": [-3.14, 3.14]}): place obj at location (x, y) with planar rotation theta, where x ranges (0.0, 1.0), y ranges (-1.0, 1.0), and theta ranges (-3.14, 3.14).
+
+An example plan in json format that utilizes the above skills (assume there exists "red_box"):
+{
+    "Plan": ["pick([red_block], {}), "place([red_block], {'x': 0.5, 'y': 0.0, 'theta': 0.0})", ...]
+}
+
+Now the completed actions are: No past actions.
+The current observation is: red_box is at position [0.4, 0.0, 0.06], blue_box is at position [0.4, 0.3, 0.06], green_box is at position [0.4, -0.2, 0.06]
+Then compute a plan of actions to execute next (in json format):
+[INFO] connecting to the LLM ...
+
+##################################################
+LLM output:
+{
+    "Plan": [
+        "pick(['red_box'], {})",
+        "place(['red_box'], {'x': 0.6, 'y': 0.0, 'theta': 0.0})",
+        "pick(['blue_box'], {})",
+        "place(['blue_box'], {'x': 0.58, 'y': 0.1, 'theta': 0.0})",
+        "pick(['green_box'], {})",
+        "place(['green_box'], {'x': 0.58, 'y': -0.1, 'theta': 0.0})"
+    ]
+}
+pick(['red_box'], {})
+[1, 2, 4, 5]
+Planning joint motion...
+Here wait_for_user
+Here wait_for_user 2
+ven = NVIDIA Corporation
+a motion plan is found! Press enter to start simulating!
+attachments_robot: []
+attached:None
+box_position:(0.4005658676109718, 1.8176033471352003e-15, 0.060988258354261936)
+Here wait_for_user
+Here wait_for_user 2
+Press enter to continue
+Picked!
+success: True
+feedback: 
+goal_achieved: False
+place(['red_box'], {'x': 0.6, 'y': 0.0, 'theta': 0.0})
+box_position:(0.40056586265563965, 2.2737367544323206e-13, 0.0709882602095604)
+box_orientation:(0.9999999982663382, -4.218500541566947e-14, -5.88839828994937e-05, 0.0)
+here we go into the motion planning
+[1, 2, 4, 5]
+Planning joint motion...
+Here wait_for_user
+Here wait_for_user 2
+a motion plan is found! Press enter to start simulating!
+attachments_robot: [Attachment(0,3)]
+attached:3
+object in place():3
+Simulated!
+success: True
+feedback: 
+goal_achieved: False
+pick(['blue_box'], {})
+[1, 2, 3, 5]
+Planning joint motion...
+Here wait_for_user
+Here wait_for_user 2
+a motion plan is found! Press enter to start simulating!
+attachments_robot: []
+attached:None
+box_position:(0.40112039303277564, 0.3007242206951288, 0.060989916513769046)
+Here wait_for_user
+Here wait_for_user 2
+Press enter to continue
+Picked!
+success: True
+feedback: 
+goal_achieved: False
+place(['blue_box'], {'x': 0.58, 'y': 0.1, 'theta': 0.0})
+box_position:(0.4011203944683075, 0.30072417855262756, 0.07098991423845291)
+box_orientation:(0.9999997824447202, -0.0006586694063203238, -2.9864754365081256e-05, -1.9318950256243627e-05)
+here we go into the motion planning
+[1, 2, 3, 5]
+Planning joint motion...
+pairwise_link_collision: 4 -1 3 -1
+no plan found
+Reason: end configuration is in collision
+Here wait_for_user
+Here wait_for_user 2
+Press enter to continue
+place is not executed!:end configuration is in collision
+success: False
+feedback: end configuration is in collision
+goal_achieved: False
+
+##################################################
+Prompt:
+You are an AI robot that generate a sequence of actions to reach the goal.
+
+The tabletop environment has a robot arm, a backet and several boxes. The robot sits at (0, 0), faces positive x axis, while positive z axis points up. The basket has a square shape, ranges (0.55, 0.65) along the axis, and ranges (-0.25, 0.25) along the y axis.
+The goal is to pack all the boxes into a compact basket on the tabletop.
+
+The robot has the following skills, where each skill can take a list of objects and parameters as input:
+- pick([obj], {}): pick up obj, with no parameters.
+- place([obj], {"x": [0.0, 1.0], "y": [-1.0, 1.0], "theta": [-3.14, 3.14]}): place obj at location (x, y) with planar rotation theta, where x ranges (0.0, 1.0), y ranges (-1.0, 1.0), and theta ranges (-3.14, 3.14).
+
+An example plan in json format that utilizes the above skills (assume there exists "red_box"):
+{
+    "Plan": ["pick([red_block], {}), "place([red_block], {'x': 0.5, 'y': 0.0, 'theta': 0.0})", ...]
+}
+
+Now the completed actions are: pick(['red_box'], {})(Success), place(['red_box'], {'x': 0.6, 'y': 0.0, 'theta': 0.0})(Success), pick(['blue_box'], {})(Success), place(['blue_box'], {'x': 0.58, 'y': 0.1, 'theta': 0.0})(Failed: end configuration is in collision), 
+The current observation is: red_box is at position [0.6, 0.0, 0.06], blue_box is at position [0.4, 0.3, 0.07], green_box is at position [0.4, -0.2, 0.06]
+Then compute a plan of actions to execute next (in json format):
+[INFO] connecting to the LLM ...
+
+##################################################
+LLM output:
+{
+    "Plan": ["place(['blue_box'], {'x': 0.58, 'y': -0.1, 'theta': 0.0})", "pick(['green_box'], {})", "place(['green_box'], {'x': 0.59, 'y': 0.1, 'theta': 0.0})"]
+}
+place(['blue_box'], {'x': 0.58, 'y': -0.1, 'theta': 0.0})
+box_position:(0.4011203944683075, 0.30072417855262756, 0.07098991423845291)
+box_orientation:(0.9999997824447203, -0.0006586694063203239, -2.9864754365081263e-05, -1.931895025624363e-05)
+here we go into the motion planning
+[1, 2, 3, 5]
+Planning joint motion...
+pairwise_link_collision: 4 -1 3 -1
+no plan found
+Reason: end configuration is in collision
+Here wait_for_user
+Here wait_for_user 2
+Press enter to continue
+place is not executed!:end configuration is in collision
+success: False
+feedback: end configuration is in collision
+goal_achieved: False
+
+##################################################
+Prompt:
+You are an AI robot that generate a sequence of actions to reach the goal.
+
+The tabletop environment has a robot arm, a backet and several boxes. The robot sits at (0, 0), faces positive x axis, while positive z axis points up. The basket has a square shape, ranges (0.55, 0.65) along the axis, and ranges (-0.25, 0.25) along the y axis.
+The goal is to pack all the boxes into a compact basket on the tabletop.
+
+The robot has the following skills, where each skill can take a list of objects and parameters as input:
+- pick([obj], {}): pick up obj, with no parameters.
+- place([obj], {"x": [0.0, 1.0], "y": [-1.0, 1.0], "theta": [-3.14, 3.14]}): place obj at location (x, y) with planar rotation theta, where x ranges (0.0, 1.0), y ranges (-1.0, 1.0), and theta ranges (-3.14, 3.14).
+
+An example plan in json format that utilizes the above skills (assume there exists "red_box"):
+{
+    "Plan": ["pick([red_block], {}), "place([red_block], {'x': 0.5, 'y': 0.0, 'theta': 0.0})", ...]
+}
+
+Now the completed actions are: pick(['red_box'], {})(Success), place(['red_box'], {'x': 0.6, 'y': 0.0, 'theta': 0.0})(Success), pick(['blue_box'], {})(Success), place(['blue_box'], {'x': 0.58, 'y': 0.1, 'theta': 0.0})(Failed: end configuration is in collision), place(['blue_box'], {'x': 0.58, 'y': -0.1, 'theta': 0.0})(Failed: end configuration is in collision), 
+The current observation is: red_box is at position [0.6, 0.0, 0.06], blue_box is at position [0.4, 0.3, 0.07], green_box is at position [0.4, -0.2, 0.06]
+Then compute a plan of actions to execute next (in json format):
+[INFO] connecting to the LLM ...
+
+##################################################
+LLM output:
+{
+    "Plan": ["place(['blue_box'], {'x': 0.6, 'y': 0.2, 'theta': 0.0})", "pick(['green_box'], {})", "place(['green_box'], {'x': 0.6, 'y': -0.2, 'theta': 0.0})"]
+}
+place(['blue_box'], {'x': 0.6, 'y': 0.2, 'theta': 0.0})
+box_position:(0.4011203944683075, 0.30072417855262756, 0.07098991423845291)
+box_orientation:(0.9999997824447202, -0.0006586694063203239, -2.986475436508126e-05, -1.9318950256243627e-05)
+here we go into the motion planning
+[1, 2, 3, 5]
+Planning joint motion...
+Here wait_for_user
+Here wait_for_user 2
+a motion plan is found! Press enter to start simulating!
+attachments_robot: [Attachment(0,4)]
+attached:4
+object in place():4
+Simulated!
+success: True
+feedback: 
+goal_achieved: False
+pick(['green_box'], {})
+[1, 2, 3, 4]
+Planning joint motion...
+Here wait_for_user
+Here wait_for_user 2
+a motion plan is found! Press enter to start simulating!
+attachments_robot: []
+attached:None
+box_position:(0.4014581748235074, -0.20021807032757719, 0.06098979284334317)
+Here wait_for_user
+Here wait_for_user 2
+Press enter to continue
+Picked!
+success: True
+feedback: 
+goal_achieved: False
+place(['green_box'], {'x': 0.6, 'y': -0.2, 'theta': 0.0})
+box_position:(0.40145817399024963, -0.200218066573143, 0.07098979502916336)
+box_orientation:(0.9999988572126014, 0.001511416033176516, -2.7247900735750166e-05, 2.127481253326828e-05)
+here we go into the motion planning
+[1, 2, 3, 4]
+Planning joint motion...
+Here wait_for_user
+Here wait_for_user 2
+a motion plan is found! Press enter to start simulating!
+attachments_robot: [Attachment(0,5)]
+attached:5
+object in place():5
+Simulated!
+Goal achieved!
+success: True
+feedback: 
+goal_achieved: True

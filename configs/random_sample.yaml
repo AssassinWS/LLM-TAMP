@@ -1,0 +1,23 @@
+defaults:
+  - env: easy_box_small_basket
+
+# runner
+runner: random_sample
+
+# max sampler iters
+max_sample_iters: 1000000
+
+# saved dir
+save_dir: saved_runs/run_sample/${now:%Y-%m-%d-%H-%M-%S}/${env.env_name}
+
+save_to_file: True
+overwrite_instances: False
+
+play_traj: True
+use_gui: True
+
+# disable hydra saving
+hydra:  
+  output_subdir: null  
+  run:  
+    dir: ${save_dir}
