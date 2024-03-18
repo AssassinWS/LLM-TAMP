@@ -36,7 +36,7 @@ python main.py --config-name=llm_tamp env=easy_box_small_basket planner=llm_back
 - `env`: the environment setting, see `configs/env`
 - `planner`: the planner, see `configs/planner`
 - `max_llm_calls`: max number of llm calls
-- `overwrite_instances`: we create & load task instances (with different init state) saved in `envs/task_instances`. Set `overwrite_instances` to true to recreate & save task instances
+- `overwrite_instances`: we create & load task instances (with different init state) saved in `envs/task_instances`. set `overwrite_instances` to true to recreate & save task instances
 - `play_traj`: whether to play motion trajectory in pybullet
 - `use_gui`: whether enable gui in pybullet
 
