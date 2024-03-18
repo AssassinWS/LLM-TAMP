@@ -22,7 +22,7 @@ We use `hydra-core` to configure the project.
 
 ## Before Running
 
-fill in the `openai_keys`/openai_key.json. with your own openAI API key
+Fill in the `openai_keys`/openai_key.json. with your API key.
 
 ### Run TAMP planning
 
@@ -41,13 +41,13 @@ python main.py --config-name=llm_tamp env=easy_box_small_basket planner=llm_back
 
 ### Run parameter sampling
 
-Run with LLM sampler:
+For the ablation study in LLM3 paper, run with LLM sampler:
 
 ```bash
 python main.py --config-name=llm_tamp env=easy_box_small_basket planner=llm_sample_params max_llm_calls=10 play_traj=true use_gui=true
 ```
 
-Run with random sampler:
+For the action parameter selection experiment in LLM3 paper, run with random sampler:
 
 ```bash
 python main.py --config-name=random_sample env=easy_box_small_basket
