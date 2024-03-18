@@ -8,9 +8,6 @@ LLM^3: Large Language Model-based Task and Motion Planning with Motion Failure R
 pip install -r requirements.txt
 ```
 
-## Usage
-
-We use `hydra-core` to configure the project.
 
 ## Folder Description
 - `assets`: robots configurations
@@ -20,9 +17,22 @@ We use `hydra-core` to configure the project.
 - `prompts`: prompt templates
 - `utils`: miscellanies
 
-## Before Running
+We use `hydra-core` to configure the project.
 
-Fill in the `openai_keys/openai_key.json` with your API key.
+
+## Usage
+
+### Before Running
+
+First, create a folder `openai_keys` under the project directory; Second, create a file `openai_key.json` under the folder `openai_keys`; Third, fill in this json file:
+
+```bash
+{
+    "key": "",
+    "org": "",
+    "proxy" : ""
+}
+```
 
 ### Run TAMP planning
 (The ablation study in the LLM^3 paper)

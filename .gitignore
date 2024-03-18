@@ -132,9 +132,9 @@ dmypy.json
 data/
 temp/
 
-# openai_keys/
-# openai_key.json
-# */openai_key.json
-# */*/openai_key.json
+openai_keys/
+openai_key.json
+*/openai_key.json
+*/*/openai_key.json
 
 saved_runs/
