@@ -1,6 +1,6 @@
 # LLM-TAMP
 
-Large Language Model-based Task and Motion Planning with Motion Failure Reasoning
+LLM^3: Large Language Model-based Task and Motion Planning with Motion Failure Reasoning
 
 ## Perequisite
 
@@ -25,6 +25,7 @@ We use `hydra-core` to configure the project.
 Fill in the `openai_keys`/openai_key.json. with your API key.
 
 ### Run TAMP planning
+(The ablation study in the LLM^3 paper)
 
 Full example with various options:
 
@@ -40,14 +41,15 @@ python main.py --config-name=llm_tamp env=easy_box_small_basket planner=llm_back
 - `use_gui`: whether enable gui in pybullet
 
 ### Run parameter sampling
+(The action parameter selection experiment in the LLM^3 paper)
 
-For the ablation study in LLM3 paper, run with LLM sampler:
+Run with the LLM sampler:
 
 ```bash
 python main.py --config-name=llm_tamp env=easy_box_small_basket planner=llm_sample_params max_llm_calls=10 play_traj=true use_gui=true
 ```
 
-For the action parameter selection experiment in LLM3 paper, run with random sampler:
+Run with the random sampler:
 
 ```bash
 python main.py --config-name=random_sample env=easy_box_small_basket
