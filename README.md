@@ -1,6 +1,6 @@
-# LLM_TAMP
+# LLM-TAMP
 
-Large Language Model-enhanced Task and Motion Planning with Motion Feasibility Reasoning
+Large Language Model-based Task and Motion Planning with Motion Failure Reasoning
 
 ## Perequisite
 
@@ -20,6 +20,9 @@ We use `hydra-core` to configure the project.
 - `prompts`: prompt templates
 - `utils`: miscellanies
 
+## Before Running
+
+fill in the `openai_keys`/openai_key.json. with your own openAI API key
 
 ### Run TAMP planning
 
