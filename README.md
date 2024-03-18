@@ -24,7 +24,7 @@ We use `hydra-core` to configure the project.
 
 ### Before Running
 
-First, create a folder `openai_keys` under the project directory; Second, create a file `openai_key.json` under the folder `openai_keys`; Third, fill in this json file:
+First, create a folder `openai_keys` under the project directory; Second, create a file `openai_key.json` under the folder `openai_keys`; Third, fill in this json file with your openAI API key:
 
 ```bash
 {
