@@ -22,7 +22,7 @@ We use `hydra-core` to configure the project.
 
 ## Before Running
 
-Fill in the `openai_keys`/openai_key.json. with your API key.
+Fill in the `openai_keys/openai_key.json` with your API key.
 
 ### Run TAMP planning
 (The ablation study in the LLM^3 paper)
