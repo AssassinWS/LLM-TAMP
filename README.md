@@ -1,28 +1,30 @@
 # LLM-TAMP
 
-LLM^3: Large Language Model-based Task and Motion Planning with Motion Failure Reasoning
+This is the official repository of paper [LLM^3: Large Language Model-based Task and Motion Planning with Motion Failure Reasoning](https://arxiv.org/abs/2403.11552). $\text{LLM}^3$ is an LLM-powered Task and Motion Planning (TAMP) framework that leverages a pretrained LLM (GPT-4) as the task planner, parameter sampler, and motion failure reasoner. We evaluate the framework in a series of tabletop box packing tasks in Pybullet.
 
-## Perequisite
+# Prerequisite
+
+## Install dependencies
 
 ```bash
 pip install -r requirements.txt
 ```
 
-
-## Folder Description
-- `assets`: robots configurations
-- `configs`: parameters for the environment and planners
+## Project structure
+- `assets`: robots configurations and environment assets
+- `configs`: config parameters for the environment and planners
 - `envs`: the developed environment based on Pybullet
-- `planners`: connecting LLM with TAMP
+    - `task_instances`: randomly generated task instances
+- `planners`: TAMP planners
 - `prompts`: prompt templates
-- `utils`: miscellanies
+- `utils`: utility functions
 
 We use `hydra-core` to configure the project.
 
 
-## Usage
+# Usage
 
-### Before Running
+## Before Running
 
 First, create a folder `openai_keys` under the project directory; Second, create a file `openai_key.json` under the folder `openai_keys`; Third, fill in this json file with your openAI API key:
 
@@ -34,7 +36,7 @@ First, create a folder `openai_keys` under the project directory; Second, create
 }
 ```
 
-### Run TAMP planning
+## Run TAMP planning
 (The ablation study in the LLM^3 paper.)
 
 Full example with various options:
@@ -50,7 +52,7 @@ python main.py --config-name=llm_tamp env=easy_box_small_basket planner=llm_back
 - `play_traj`: whether to play motion trajectory in pybullet
 - `use_gui`: whether enable gui in pybullet
 
-### Run parameter sampling
+## Run parameter sampling
 (The action parameter selection experiment in the LLM^3 paper.)
 
 Run with the LLM sampler:
