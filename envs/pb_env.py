@@ -98,12 +98,14 @@ class PybulletEnv:
             action_success=success,
             goal_achieved=goal_achieved,
         )
-        logger.info("You are in the step***************************************")
+        # logger.info("You are in the step***************************************")
         logger.info(feedback.motion_planner_feedback)
         if action.primitive.name == "place" and feedback.motion_planner_feedback == "Failed because the end configuration is in collision":
-            logger.info("HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH")
+            # logger.info("HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH")
             # logger.info(observation[0])
 
+            # a = (observation[0]).keys()
+            # logger.info(a)
             red_ob = observation[0]['red_box']
             blue_ob = observation[0]['blue_box']
             green_ob = observation[0]['cyan_box']
