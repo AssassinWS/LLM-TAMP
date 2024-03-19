@@ -1,6 +1,6 @@
 # LLM-TAMP
 
-This is the official repository of paper
+This is the official repository of the paper:
 
 [LLM^3: Large Language Model-based Task and Motion Planning with Motion Failure Reasoning](https://arxiv.org/abs/2403.11552). 
 
