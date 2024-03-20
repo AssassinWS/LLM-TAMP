@@ -107,7 +107,7 @@ class PybulletEnv:
 
             box_ob = []
             for i in range(4):
-                box_ob.append(observation[0][a[i+1]])
+                box_ob.append(observation[0][a[i]])
 
             which_obj = action.obj_args[0]
             which_parameter = action.param_args
