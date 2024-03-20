@@ -98,45 +98,27 @@ class PybulletEnv:
             action_success=success,
             goal_achieved=goal_achieved,
         )
-        # logger.info("You are in the step***************************************")
         logger.info(feedback.motion_planner_feedback)
         if action.primitive.name == "place" and feedback.motion_planner_feedback == "Failed because the end configuration is in collision":
-            # logger.info("HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH")
-            # logger.info(observation[0])
+            a = []
+            for key in observation[0].keys():
+                a.append(key)
+            logger.info(a)
 
-            # a = (observation[0]).keys()
-            # logger.info(a)
-            red_ob = observation[0]['red_box']
-            blue_ob = observation[0]['blue_box']
-            green_ob = observation[0]['cyan_box']
-            tan_ob = observation[0]['yellow_box']
-            logger.info(red_ob['position'])
-            logger.info(red_ob['bb_min'])
-            logger.info(red_ob['bb_max'])
-            logger.info(action)
+            box_ob = []
+            for i in range(4):
+                box_ob.append(observation[0][a[i+1]])
+
             which_obj = action.obj_args[0]
             which_parameter = action.param_args
             which_x = which_parameter["x"]
             which_y = which_parameter["y"]
-            logger.info(which_obj)
-            logger.info(which_obj[0])
-            logger.info(which_parameter)
-            logger.info(which_x)
-            logger.info(which_y)
 
-
-            if which_obj == 'red_box':
-                which_xlength = red_ob['bb_max'][0] - red_ob['bb_min'][0]
-                which_ylength = red_ob['bb_max'][1] - red_ob['bb_min'][1]
-            if which_obj == 'blue_box':
-                which_xlength = blue_ob['bb_max'][0] - blue_ob['bb_min'][0]
-                which_ylength = blue_ob['bb_max'][1] - blue_ob['bb_min'][1]
-            if which_obj == 'cyan_box':
-                which_xlength = green_ob['bb_max'][0] - green_ob['bb_min'][0]
-                which_ylength = green_ob['bb_max'][1] - green_ob['bb_min'][1]
-            if which_obj == 'yellow_box':
-                which_xlength = tan_ob['bb_max'][0] - tan_ob['bb_min'][0]
-                which_ylength = tan_ob['bb_max'][1] - tan_ob['bb_min'][1]
+            for i in range(4):
+                if which_obj == a[i]:
+                    which_xlength = box_ob[i]['bb_max'][0] - box_ob[i]['bb_min'][0]
+                    which_ylength = box_ob[i]['bb_max'][1] - box_ob[i]['bb_min'][1]
+                    break
 
             which_xmin = which_x - which_xlength/2
             which_ymin = which_y - which_ylength/2
@@ -144,65 +126,20 @@ class PybulletEnv:
             which_ymax = which_y + which_ylength/2
 
             collision = False
-            if which_obj[0] != 'red_box':
-                check_xmin = red_ob['bb_min'][0]
-                check_ymin = red_ob['bb_min'][1]
-                check_xmax = red_ob['bb_max'][0]
-                check_ymax = red_ob['bb_max'][1]
-                if self.collision_function(check_xmin, check_ymin, check_xmax, check_ymax, which_xmin, which_ymin, which_xmax, which_ymax):  
-                    collision = True
-                    collided_obj = 'red_box'
-                else:
-                    collision = False
-
-            if which_obj[0] != 'blue_box' and (not collision):
-                check_xmin = blue_ob['bb_min'][0]
-                check_ymin = blue_ob['bb_min'][1]
-                check_xmax = blue_ob['bb_max'][0]
-                check_ymax = blue_ob['bb_max'][1]
-                if self.collision_function(check_xmin, check_ymin, check_xmax, check_ymax, which_xmin, which_ymin, which_xmax, which_ymax):  
-                    collision = True
-                    collided_obj = 'blue_box'
-                else:
-                    collision = False
-
-            if which_obj[0] != 'cyan_box' and (not collision):
-                check_xmin = green_ob['bb_min'][0]
-                check_ymin = green_ob['bb_min'][1]
-                check_xmax = green_ob['bb_max'][0]
-                check_ymax = green_ob['bb_max'][1]
-                if self.collision_function(check_xmin, check_ymin, check_xmax, check_ymax, which_xmin, which_ymin, which_xmax, which_ymax):  
-                    collision = True
-                    collided_obj = 'cyan_box'
-                else:
-                    collision = False
-
-            if which_obj[0] != 'yellow_box' and (not collision):
-                check_xmin = tan_ob['bb_min'][0]
-                check_ymin = tan_ob['bb_min'][1]
-                check_xmax = tan_ob['bb_max'][0]
-                check_ymax = tan_ob['bb_max'][1]
-                if self.collision_function(check_xmin, check_ymin, check_xmax, check_ymax, which_xmin, which_ymin, which_xmax, which_ymax):  
-                    collision = True
-                    collided_obj = 'yellow_box'
-                else:
-                    collision = False
+            for i in range(4):
+                if which_obj[0] != a[i] and (not collision):
+                    check_xmin = box_ob[i]['bb_min'][0]
+                    check_ymin = box_ob[i]['bb_min'][1]
+                    check_xmax = box_ob[i]['bb_max'][0]
+                    check_ymax = box_ob[i]['bb_max'][1]
+                    if self.collision_function(check_xmin, check_ymin, check_xmax, check_ymax, which_xmin, which_ymin, which_xmax, which_ymax):  
+                        collision = True
+                        collided_obj = a[i]
+                    else:
+                        collision = False
             
             if collision:
                 feedback.motion_planner_feedback = "Failed because collide with " + collided_obj
-            # logger.info("which_xmin", which_xmin)
-            # for object_name, object_state in observation.items():
-            #     logger.info("Obj_name", object_name)
-            #     logger.info("Obj_state", object_state)
-            # for object_name, object_state in observation.items():   
-            #     if which_obj == object_name:
-            #         continue
-            #     xlength = object_state["bb_max"][0] - object_state["bb_min"][0]
-            #     length = object_state["bb_max"][1] - object_state["bb_min"][1]
-            # which_obj = action.obj_args
-            # which_parameter = action.param_args
-            # which_xmin = which_parameter["x"]
-
 
         if goal_achieved:
             logger.debug("Goal achieved!")
@@ -449,10 +386,7 @@ class PyBulletRobot:
 
             ee_link_pose = get_link_pose(self.robot, self.tool_attach_link)
             ee_link_from_tcp = Pose(point=(0, 0.00, 0.05))
-
-            # print(get_link_pose(env.box[0], -1))
-            # print(get_link_pose(env.table, -1))
-            # cprint("custom_limits: {}".format(Custom_limits), color = "red")
+ 
 
             logger.debug("Start motion planning")
             success, traj, feedback = self.motion_planning(
