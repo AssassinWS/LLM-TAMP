@@ -4,13 +4,17 @@ This is the official repository of the paper:
 
 [LLM3: Large Language Model-based Task and Motion Planning with Motion Failure Reasoning](https://arxiv.org/abs/2403.11552). 
 
-$\text{LLM}^3$ is an LLM-powered Task and Motion Planning (TAMP) framework that leverages a pretrained LLM (GPT-4) as the task planner, parameter sampler, and motion failure reasoner. We evaluate the framework in a series of tabletop box-packing tasks in Pybullet.
+$\text{LLM}^3$ is an LLM-powered Task and Motion Planning (TAMP) framework that leverages a pre-trained LLM (GPT-4) as the task planner, parameter sampler, and motion failure reasoner. We evaluate the framework in a series of tabletop box-packing tasks in Pybullet.
 
 # Demo
 
 
 
-https://github.com/AssassinWS/LLM-TAMP/assets/144423427/8eec71e9-e3e0-4ea7-9320-d44b320bdd8f
+
+
+
+https://github.com/AssassinWS/LLM-TAMP/assets/144423427/858b913e-1b1c-4fb2-a7ba-8f5dee805626
+
 
 
 
@@ -61,10 +65,10 @@ python main.py --config-name=llm_tamp env=easy_box_small_basket planner=llm_back
 
 - `env`: the environment setting, see `configs/env`
 - `planner`: the planner, see `configs/planner`
-- `max_llm_calls`: max number of llm calls
-- `overwrite_instances`: we create & load task instances (with different init state) saved in `envs/task_instances`. set `overwrite_instances` to true to recreate & save task instances
-- `play_traj`: whether to play motion trajectory in pybullet
-- `use_gui`: whether enable gui in pybullet
+- `max_llm_calls`: max number of LLM calls
+- `overwrite_instances`: we create & load task instances (with different init states) saved in `envs/task_instances`. set `overwrite_instances` to true to recreate & save task instances
+- `play_traj`: whether to play motion trajectory in Pybullet
+- `use_gui`: whether enable gui in Pybullet
 
 ## Run parameter sampling
 The action parameter selection experiment in the LLM^3 paper.
