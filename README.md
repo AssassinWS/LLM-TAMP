@@ -2,7 +2,7 @@
 
 This is the official repository of the paper:
 
-[LLM^3: Large Language Model-based Task and Motion Planning with Motion Failure Reasoning](https://arxiv.org/abs/2403.11552). 
+[LLM3: Large Language Model-based Task and Motion Planning with Motion Failure Reasoning](https://arxiv.org/abs/2403.11552). 
 
 $\text{LLM}^3$ is an LLM-powered Task and Motion Planning (TAMP) framework that leverages a pretrained LLM (GPT-4) as the task planner, parameter sampler, and motion failure reasoner. We evaluate the framework in a series of tabletop box-packing tasks in Pybullet.
 
