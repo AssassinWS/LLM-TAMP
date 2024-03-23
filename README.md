@@ -9,7 +9,10 @@ $\text{LLM}^3$ is an LLM-powered Task and Motion Planning (TAMP) framework that 
 # Demo
 
 
-https://github.com/AssassinWS/LLM-TAMP/assets/144423427/7dfc47f2-37b0-45b8-b8ea-d5ef1a8ab0d8
+
+https://github.com/AssassinWS/LLM-TAMP/assets/144423427/8eec71e9-e3e0-4ea7-9320-d44b320bdd8f
+
+
 
 
 
