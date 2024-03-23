@@ -6,6 +6,13 @@ This is the official repository of the paper:
 
 $\text{LLM}^3$ is an LLM-powered Task and Motion Planning (TAMP) framework that leverages a pretrained LLM (GPT-4) as the task planner, parameter sampler, and motion failure reasoner. We evaluate the framework in a series of tabletop box-packing tasks in Pybullet.
 
+# Demo
+
+
+https://github.com/AssassinWS/LLM-TAMP/assets/144423427/7dfc47f2-37b0-45b8-b8ea-d5ef1a8ab0d8
+
+
+
 # Prerequisite
 
 ## Install dependencies
