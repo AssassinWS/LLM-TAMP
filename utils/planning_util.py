@@ -7,7 +7,7 @@ from pybullet_planning.interfaces.env_manager.pose_transformation import circula
 
 from pybullet_planning.interfaces.env_manager.user_io import wait_for_user
 from pybullet_planning.interfaces.debug_utils import add_line
-from pybullet_planning.interfaces.robots.joint import get_custom_limits, get_joint_positions
+from pybullet_planning.interfaces.robots.joint import get_custom_limits, get_joint_positions,set_joint_positions
 from pybullet_planning.interfaces.robots.collision import get_collision_fn
 
 from pybullet_planning.motion_planners import birrt, lazy_prm
@@ -192,20 +192,80 @@ def plan_direct_joint_motion(body, joints, end_conf, **kwargs):
     """
     return plan_waypoints_joint_motion(body, joints, [end_conf], **kwargs)
 
-def check_initial_end(start_conf, end_conf, collision_fn, diagnosis=False):
-    collision_free = True
+def get_detailed_ee_collision_func(body, joints, ee_link, obstacles=[], attachments=[], body_name_from_id=None, **kwargs):
+    """get collision checking function collision_fn(joint_values) -> bool.
+
+    Parameters
+    ----------
+    body : int
+        the robot body
+    joints : list of int
+        moving joint indices for body
+    ee_link : int
+        end effector link index
+    obstacles : list of int
+        body indices for collision objects, by default []
+    attachments : list of Attachment, optional
+        list of attachment, by default []
+
+    Returns
+    -------
+    function handle
+        collision_fn: (conf, diagnosis) -> False if no collision found, True otherwise.
+        if need diagnosis information for the collision, set diagnosis to True will help you visualize
+        which link is colliding to which.
+    """
+    from pybullet_planning.interfaces.robots.joint import set_joint_positions
+    from pybullet_planning.interfaces.debug_utils.debug_utils import draw_collision_diagnosis
+    from pybullet_planning.interfaces.robots.collision import expand_links, pairwise_link_collision, pairwise_link_collision_info
+    from pybullet_planning.interfaces.robots.link import get_link_name
+    from pybullet_planning.interfaces.robots.body import get_body_name
+    moving_links = [ee_link]
+    attached_bodies = [attachment.child for attachment in attachments]
+    moving_bodies = [(body, moving_links)] + attached_bodies
+    # * body pairs
+    check_body_pairs = list(product(moving_bodies, obstacles))  # + list(combinations(moving_bodies, 2))
+    check_body_link_pairs = []
+    for body1, body2 in check_body_pairs:
+        body1, links1 = expand_links(body1)
+        body2, links2 = expand_links(body2)
+        if body1 == body2:
+            continue
+        bb_link_pairs = product(links1, links2)
+        for bb_links in bb_link_pairs:
+            bbll_pair = ((body1, bb_links[0]), (body2, bb_links[1]))
+            check_body_link_pairs.append(bbll_pair)
+
+    def detailed_ee_collision_fn(q, diagnosis=False):
+        # * set body & attachment positions
+        set_joint_positions(body, joints, q)
+        for attachment in attachments:
+            attachment.assign()
+
+        # * body - body check
+        for (body1, link1), (body2, link2) in check_body_link_pairs:
+            if pairwise_link_collision(body1, link1, body2, link2, **kwargs):
+                if diagnosis:
+                    # warnings.warn('moving body - body collision!', UserWarning)
+                    cr = pairwise_link_collision_info(body1, link1, body2, link2)
+                    draw_collision_diagnosis(cr, body_name_from_id=body_name_from_id, **kwargs)
+                return True, body2
+        return False, None
+    return detailed_ee_collision_fn
+
+def check_ee_collision(body, joints, ee_link, end_conf, obstacles={}, attachments=[], diagnosis=False):
+    start_conf = get_joint_positions(body, joints)
+    detailed_ee_collision_fn = get_detailed_ee_collision_func(body, joints, ee_link, list(obstacles.keys()), attachments)
     feedback = ""
 
-    assert not collision_fn(start_conf, diagnosis), "The initial configuration is in collision, doesn't make sense!"
-    # if collision_fn(start_conf, diagnosis):
-    #     collision_free = False
-    #     reasonings.append("initial configuration is in collision")
+    if_collision, collide_obstacle = detailed_ee_collision_fn(end_conf, diagnosis)
+    # set to start_conf
+    set_joint_positions(body, joints, start_conf)
 
-    if collision_fn(end_conf, diagnosis):
-        collision_free = False
-        feedback = "Failed because the end configuration is in collision"
+    if if_collision:
+        feedback = f"Failed because the end configuration is in collision with object {obstacles[collide_obstacle]}"
 
-    return collision_free, feedback
+    return if_collision, feedback
 
 def plan_joint_motion(body, joints, end_conf, obstacles=[], attachments=[],
                       self_collisions=True, disabled_collisions=set(), extra_disabled_collisions=set(),
@@ -221,14 +281,12 @@ def plan_joint_motion(body, joints, end_conf, obstacles=[], attachments=[],
                                     disabled_collisions=disabled_collisions, extra_disabled_collisions=extra_disabled_collisions,
                                     custom_limits=custom_limits, max_distance=max_distance)
 
-    start_conf = get_joint_positions(body, joints)
-
-    collision_free, feedback = check_initial_end(start_conf, end_conf, collision_fn, diagnosis=diagnosis)
-    if not collision_free:
-        return None, feedback
-    
+    start_conf = get_joint_positions(body, joints)    
     birrt_res = birrt(start_conf, end_conf, distance_fn, sample_fn, extend_fn, collision_fn, **kwargs)
     feedback = "" if birrt_res is not None else "Failed because no collision-free trajectory is found"
+
+    # set to start_conf
+    set_joint_positions(body, joints, start_conf)
     
     return birrt_res, feedback
     # return plan_lazy_prm(start_conf, end_conf, sample_fn, extend_fn, collision_fn)                # better

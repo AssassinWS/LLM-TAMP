@@ -20,12 +20,20 @@ from pybullet_planning import (
     create_attachment,
     get_link_pose,
     get_distance,
+    quat_angle_between,
     wait_for_duration,
     multiply,
 )
 
-from utils.planning_util import plan_joint_motion
-from utils.pb_util import assign_link_colors, create_box, set_point, get_pose, set_static
+from utils.planning_util import plan_joint_motion, check_ee_collision
+from utils.pb_util import (
+    assign_link_colors,
+    create_box,
+    set_point,
+    get_pose,
+    set_static,
+    add_data_path,
+)
 from utils.tamp_util import Action, TAMPFeedback
 from envs.constants import ASSETS_DIR, COLOR_FRANKA, FRANKA_Limits, BROWN, TAN
 
@@ -35,9 +43,6 @@ logger = logging.getLogger(__name__)
 BOX_PATH = os.path.join(ASSETS_DIR, "box_obstacle3.obj")
 HOOK_PATH = os.path.join(ASSETS_DIR, "hook.obj")
 FRANKA_ROBOT_URDF = os.path.join(ASSETS_DIR, "franka_description", "robots", "panda_arm_hand.urdf")
-
-
-
 
 
 class PybulletEnv:
@@ -54,6 +59,10 @@ class PybulletEnv:
     def primitive_actions(self):
         return self._primitive_actions
 
+    @property
+    def body_id_name_mapping(self):
+        return {v: k for k, v in self._objects.items()}
+
     def reset(self, use_gui=True):
         # destroy the current simulation
         self.destroy()
@@ -62,11 +71,23 @@ class PybulletEnv:
         connect(use_gui=use_gui)
         p.setGravity(0, 0, -10)
 
+        # add floor
+        add_data_path()
+        p.loadURDF("plane.urdf")
+
         # reset objects
         self._objects = {}
 
         # add pybullet robot
         self.robot = PyBulletRobot()
+
+        # reset camera
+        p.resetDebugVisualizerCamera(
+            cameraDistance=2.6,
+            cameraYaw=40,
+            cameraPitch=-45,
+            cameraTargetPosition=[-0.3, 0.5, -1],
+        )
 
     def destroy(self):
         if is_connected():
@@ -99,47 +120,6 @@ class PybulletEnv:
             goal_achieved=goal_achieved,
         )
         logger.info(feedback.motion_planner_feedback)
-        if action.primitive.name == "place" and feedback.motion_planner_feedback == "Failed because the end configuration is in collision":
-            a = []
-            for key in observation[0].keys():
-                a.append(key)
-            logger.info(a)
-
-            box_ob = []
-            for i in range(4):
-                box_ob.append(observation[0][a[i]])
-
-            which_obj = action.obj_args[0]
-            which_parameter = action.param_args
-            which_x = which_parameter["x"]
-            which_y = which_parameter["y"]
-
-            for i in range(4):
-                if which_obj == a[i]:
-                    which_xlength = box_ob[i]['bb_max'][0] - box_ob[i]['bb_min'][0]
-                    which_ylength = box_ob[i]['bb_max'][1] - box_ob[i]['bb_min'][1]
-                    break
-
-            which_xmin = which_x - which_xlength/2
-            which_ymin = which_y - which_ylength/2
-            which_xmax = which_x + which_xlength/2
-            which_ymax = which_y + which_ylength/2
-
-            collision = False
-            for i in range(4):
-                if which_obj[0] != a[i] and (not collision):
-                    check_xmin = box_ob[i]['bb_min'][0]
-                    check_ymin = box_ob[i]['bb_min'][1]
-                    check_xmax = box_ob[i]['bb_max'][0]
-                    check_ymax = box_ob[i]['bb_max'][1]
-                    if self.collision_function(check_xmin, check_ymin, check_xmax, check_ymax, which_xmin, which_ymin, which_xmax, which_ymax):  
-                        collision = True
-                        collided_obj = a[i]
-                    else:
-                        collision = False
-            
-            if collision:
-                feedback.motion_planner_feedback = "Failed because collide with " + collided_obj
 
         if goal_achieved:
             logger.debug("Goal achieved!")
@@ -171,9 +151,8 @@ class PybulletEnv:
     def create_task_instances(self):
         raise NotImplementedError("Override me!")
 
-    def create_table(self, name="table", color=TAN, x=0.1, y=0, z=0): #-0.005):
+    def create_table(self, name="table", color=TAN, x=0.1, y=0, z=0):  # -0.005):
         table_body = create_box(w=3, l=3, h=0.01, color=color)
-        # //adjust table size
         set_point(table_body, [x, y, z])
         self._objects[name] = table_body
 
@@ -209,22 +188,18 @@ class PybulletEnv:
         return p.getAABB(self._objects[name])
 
     def prepare_obstacles(self, obj_name_list=[], remove_mode=False):
-        obstacles = set()
-
+        obstacles = {}
         # if remove mode, remove objects in obj_name_list
         if remove_mode:
-            for obj in self._objects.values():
-                obstacles.add(obj)
-
-            for obj_name in obj_name_list:
-                obstacles.remove(self._objects[obj_name])
-
+            for obj_name, id in self._objects.items():
+                if obj_name not in obj_name_list:
+                    obstacles[id] = obj_name
         else:
             # add obstacles
             for obj_name in obj_name_list:
-                obstacles.add(self._objects[obj_name])
+                obstacles[self._objects[obj_name]] = obj_name
 
-        return list(obstacles)
+        return obstacles
 
 
 class PyBulletRobot:
@@ -273,7 +248,6 @@ class PyBulletRobot:
 
     def pick(self, object, obstacles, grasp_direction, traj=None, play_traj=True):
         assert grasp_direction in self.position_offset_dict.keys(), "Unknown grasp direction!"
-        failure_feedback = ""
         if len(self.attachments_robot) > 0:
             self.release_gripper()
         # prepare grasping pose
@@ -283,40 +257,19 @@ class PyBulletRobot:
         ee_grasp_orientation = self.rotation_offset_dict[grasp_direction]
 
         if traj is None:
-            # test ik first
-            joint_grasp_solution = p.calculateInverseKinematics(
-                bodyUniqueId=self.robot,
-                endEffectorLinkIndex=self.tool_attach_link,
-                targetPosition=ee_grasp_position,
-                targetOrientation=ee_grasp_orientation,
-                # currentPosition=[0, -0.785398163397, 0, -2.35619449, 0, 1.57079632679, 0.78539816, 0.01, 0.01],
-                maxNumIterations=100000,
-                residualThreshold=0.0001,
-            )
-
-            ik_found = self.ik_test(ee_grasp_position, ee_grasp_orientation, joint_grasp_solution)
-            if not ik_found:
-                logger.debug("Do not have a feasible ik")
-                failure_feedback = "Failed because no IK solution exists for the grasping pose"
-                return False, None, failure_feedback
-
             success, traj, feedback = self.motion_planning(
                 self.robot,
                 self.ik_joints,
-                current_conf,
-                joint_grasp_solution,
+                ee_grasp_position,
+                ee_grasp_orientation,
                 obstacles,
                 self.attachments_robot,
-                None,
                 FRANKA_Limits,
             )
         else:
             assert (
                 traj[0] == current_conf
             ), f"The start conf of the known trajectory {traj[0]} is not the same as the robot start conf {current_conf}"
-            assert (
-                traj[-1] == joint_grasp_solution
-            ), f"The end conf of the known trajectory {traj[-1]} is not the same as the robot end conf {joint_grasp_solution}"
 
             success = True
             feedback = "Success"
@@ -346,7 +299,6 @@ class PyBulletRobot:
             # set last grasp direction
             self.last_grasp_direction = grasp_direction
 
-        # wait_for_user()
         return success, traj, feedback
 
     def place(self, object, obstacles, x, y, z, theta, traj=None, play_traj=True):
@@ -370,48 +322,26 @@ class PyBulletRobot:
         ee_grasp_orientation = quat
 
         if traj is None:
-            joint_grasp_solution = p.calculateInverseKinematics(
-                bodyUniqueId=self.robot,
-                endEffectorLinkIndex=self.tool_attach_link,
-                targetPosition=ee_grasp_position,
-                targetOrientation=ee_grasp_orientation,
-                maxNumIterations=100000,
-                residualThreshold=0.0001,
-            )
-
-            ik_found = self.ik_test(ee_grasp_position, ee_grasp_orientation, joint_grasp_solution)
-            if not ik_found:
-                logger.debug("Do not have a feasible ik")
-                return False, None, "Failed because no IK solution exists for the placing pose"
-
-            ee_link_pose = get_link_pose(self.robot, self.tool_attach_link)
-            ee_link_from_tcp = Pose(point=(0, 0.00, 0.05))
- 
-
-            logger.debug("Start motion planning")
             success, traj, feedback = self.motion_planning(
                 self.robot,
                 self.ik_joints,
-                current_conf,
-                joint_grasp_solution,
+                ee_grasp_position,
+                ee_grasp_orientation,
                 obstacles,
                 self.attachments_robot,
-                object,
                 FRANKA_Limits,
             )
         else:
             assert (
                 traj[0] == current_conf
             ), f"The start conf of the known trajectory {traj[0]} is not the same as the robot start conf {current_conf}"
-            assert (
-                traj[-1] == joint_grasp_solution
-            ), f"The end conf of the known trajectory {traj[-1]} is not the same as the robot end conf {joint_grasp_solution}"
 
             success = True
             feedback = "Success"
 
         # release gripper
         if success:
+            ee_link_from_tcp = Pose(point=(0, 0.00, 0.05))
             # simulate action
             self.simulate_traj(
                 self.robot,
@@ -433,16 +363,17 @@ class PyBulletRobot:
         self.attachments_robot = []
         self.last_grasp_direction = None
 
-    def ik_test(self, targeted_pos, targeted_ori, joint_conf):
+    def verify_ik(self, targeted_pos, targeted_ori, joint_conf):
         original_conf = get_joint_positions(self.robot, self.ik_joints)
         set_joint_positions(self.robot, self.ik_joints, joint_conf)
         pos, ori = get_link_pose(self.robot, self.tool_attach_link)
 
         dist = get_distance(pos, targeted_pos)
+        ori_dist = quat_angle_between(ori, targeted_ori)
 
         set_joint_positions(self.robot, self.ik_joints, original_conf)
 
-        if dist < 0.01:
+        if dist < 0.01 and ori_dist < 0.4:
             # print("IK solution found")
             return True
         else:
@@ -453,39 +384,55 @@ class PyBulletRobot:
         self,
         robot,
         ik_joints,
-        robot_start_conf,
-        robot_end_conf,
+        robot_ee_position,
+        robot_end_orientation,
         obstacles,
         attachments_robot,
-        attached,
         custom_limits,
         diagnosis=False,
     ):
-        # record the start pose of the attached object
-        if attached is not None:
-            attached_start_pose = get_pose(attached)
+        # test ik first
+        end_conf = p.calculateInverseKinematics(
+            bodyUniqueId=self.robot,
+            endEffectorLinkIndex=self.tool_attach_link,
+            targetPosition=robot_ee_position,
+            targetOrientation=robot_end_orientation,
+            # currentPosition=[0, -0.785398163397, 0, -2.35619449, 0, 1.57079632679, 0.78539816, 0.01, 0.01],
+            maxNumIterations=100000,
+            residualThreshold=0.0001,
+        )
+
+        ik_found = self.verify_ik(robot_ee_position, robot_end_orientation, end_conf)
+        if not ik_found:
+            logger.debug("Do not have a feasible ik")
+            failure_feedback = "Failed because no IK solution exists for the grasping pose"
+            return False, None, failure_feedback
+
+        # test final ee pose if in collision
+        if_collision, feedback = check_ee_collision(
+            self.robot,
+            self.ik_joints,
+            self.tool_attach_link,
+            end_conf,
+            obstacles,
+            self.attachments_robot,
+        )
+        if if_collision:
+            logger.debug(feedback)
+            return False, None, feedback
 
         # plan motion
         logger.debug(str(obstacles))
-        # try:
         path, feedback = plan_joint_motion(
             robot,
             ik_joints,
-            robot_end_conf,
-            obstacles=obstacles,
+            end_conf,
+            obstacles=list(obstacles.keys()),
             attachments=attachments_robot,
             self_collisions=True,
             custom_limits=custom_limits,
             diagnosis=diagnosis,
         )
-        # except:
-        #     return False, None, "Cannot plan a path!"
-
-        # set back to start pose immediately
-        set_joint_positions(robot, ik_joints, robot_start_conf)
-        # todo: there is a bug here. what if the robot already has a box in hand and tries to pick another one
-        if attached is not None:
-            set_pose(attached, attached_start_pose)
 
         # process planned results
         if path is None:

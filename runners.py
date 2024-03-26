@@ -13,16 +13,6 @@ logger.setLevel(logging.DEBUG)
 
 
 class TAMPRunner:
-    
-    def get_data_path(self):
-        import pybullet_data
-        return pybullet_data.getDataPath()
-
-    def add_data_path(self, data_path=None):
-        if data_path is None:
-            data_path = self.get_data_path()
-        p.setAdditionalSearchPath(data_path)
-        return data_path
     def __init__(self, cfg):
         self.cfg = cfg
         self.env_cfg = cfg.env
@@ -30,8 +20,6 @@ class TAMPRunner:
 
         # environment
         self.env = PackCompactEnv()
-        
-
         self.primitive_actions = self.env.primitive_actions
 
         # save dirs
@@ -65,9 +53,6 @@ class TAMPRunner:
         for _ in range(self.max_llm_calls):
             # reset environment
             obs, obs_text = self.env.reset(**task_config, use_gui=self.use_gui)
-            p.resetDebugVisualizerCamera( cameraDistance=2.6, cameraYaw=40, cameraPitch=-45, cameraTargetPosition=[-0.3, 0.5, -1])
-            self.add_data_path()
-            plane = p.loadURDF("plane.urdf") 
             # propose plan with llm (symbolic plan only used when sampling parameters only)
             plan = self.planner.plan(
                 obs_text, last_feedback_list, symbolic_plan=self.env.get_symbolic_plan()
@@ -119,8 +104,6 @@ class TAMPRunner:
                 break
             else:
                 logger.info(f"Goal not achieved: {feedback.task_process_feedback}")
-            
-            # import pdb; pdb.set_trace()
 
         logger.info("Episode ends!")
         self.env.destroy()
@@ -223,8 +206,6 @@ class RandomSampleRunner(TAMPRunner):
         while True:
             # reset environment
             obs, obs_text = self.env.reset(**task_config, use_gui=self.use_gui)
-            # p.resetDebugVisualizerCamera( cameraDistance=3, cameraYaw=0, cameraPitch=-89.9, cameraTargetPosition=[0.6,0,-1])
-            p.resetDebugVisualizerCamera( cameraDistance=3, cameraYaw=0, cameraPitch=-59.9, cameraTargetPosition=[0.6,0,-1])
             bb_min, bb_max = self.env.get_bb("basket")
             x_range = [bb_min[0], bb_max[0]]
             y_range = [bb_min[1], bb_max[1]]
@@ -333,9 +314,6 @@ class RandomSampleRunner(TAMPRunner):
                 # save tamp_plan into npz
                 save_episode_dir = self.save_dir / f"{idx}"
                 mkdir(save_episode_dir)
-                # import pdb
-
-                # pdb.set_trace()
                 save_npz(episode_data, save_episode_dir / "result.npz")
 
         if self.save_to_file:

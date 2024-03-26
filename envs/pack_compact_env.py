@@ -93,7 +93,7 @@ class PackCompactEnv(PybulletEnv):
             if success:
                 logger.debug("Picked!")
             else:
-                logger.debug("pick is not executed!:{}".format(mp_feedback))
+                logger.debug(f"Pick is not executed:{mp_feedback}")
 
             # don't simulate at pick
 
@@ -110,7 +110,7 @@ class PackCompactEnv(PybulletEnv):
                 # randomly sample x,y for ablation study
                 x=action.param_args["x"],
                 y=action.param_args["y"],
-                z=0.05,  # todo: need to fix
+                z=0.05,
                 theta=action.param_args["theta"],
                 traj=traj,
                 play_traj=play_traj,
@@ -121,10 +121,10 @@ class PackCompactEnv(PybulletEnv):
                 self.theta_dict[obj_name] = action.param_args["theta"]
                 logger.debug("Placed!")
             else:
-                logger.debug("place is not executed!:{}".format(mp_feedback))
+                logger.debug(f"Place is not executed:{mp_feedback}")
 
         # assign traj
-        if action.traj is None:
+        if action.traj is None or len(action.traj) == 0:
             action.traj = traj
 
         return success, mp_feedback
@@ -233,7 +233,7 @@ class PackCompactEnv(PybulletEnv):
                         max(-0.6 + 0.3 * box_i, last_y + box.l / 2),
                         -0.6 + 0.3 * (box_i + 1),
                     )
-                    y = max(y, last_y + box.l/2 + gripper_length)
+                    y = max(y, last_y + box.l / 2 + gripper_length)
                     last_y = y + box.l / 2
 
                     box_info = {
