@@ -28,6 +28,8 @@ https://github.com/AssassinWS/LLM-TAMP/assets/144423427/74566b14-a62e-401d-a8d9-
 ## Install dependencies
 
 ```bash
+git clone git@github.com:AssassinWS/LLM-TAMP.git
+cd LLM-TAMP
 pip install -r requirements.txt
 ```
 
